@@ -1,0 +1,776 @@
+<html><head><base href="/"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Calculadora de Penas</title>
+<style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      background: linear-gradient(135deg, #1c2833 0%, #34495e 100%);
+      min-height: 100vh;
+      padding: 2rem;
+      color: #ecf0f1;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2rem;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #ecf0f1;
+      margin-bottom: 2rem;
+      text-align: center;
+      font-size: 2.5rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .formula {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .tab-button {
+      background: rgba(52, 152, 219, 0.2);
+      color: #ecf0f1;
+      border: none;
+      padding: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      flex: 1;
+      min-width: 200px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-button:hover {
+      background: rgba(52, 152, 219, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .tab-button.active {
+      background: rgba(52, 152, 219, 0.6);
+      box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+
+    .tab-content {
+      display: none;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      margin-top: 1rem;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #ecf0f1;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #ecf0f1;
+      font-size: 1rem;
+    }
+
+    button.calculate {
+      background: #2ecc71;
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      width: 100%;
+      margin-top: 1rem;
+    }
+
+    button.calculate:hover {
+      background: #27ae60;
+      transform: translateY(-2px);
+    }
+
+    .result {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: rgba(46, 204, 113, 0.2);
+      border-radius: 6px;
+      text-align: center;
+      display: none;
+    }
+
+    .formula-explanation {
+      background: rgba(41, 128, 185, 0.2);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .formula-explanation p {
+      margin-bottom: 0.5rem;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .result-box {
+      background: rgba(46, 204, 113, 0.2);
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-top: 1.5rem;
+    }
+
+    .result-item {
+      margin-bottom: 1rem;
+      padding: 0.8rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+    }
+    select {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #ecf0f1;
+      font-size: 1rem;
+    }
+    #escalationLevels {
+      margin-top: 10px;
+      line-height: 1.8;
+    }
+    .result-item strong {
+      display: inline-block;
+      min-width: 150px;
+    }
+
+    .result-item p {
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+<h1>Calculadora de Penas</h1>
+<div class="tabs">
+<button class="tab-button active" onclick="openTab('sexto')">Sexto de la Pena</button>
+<button class="tab-button" onclick="openTab('septimo')">Séptimo de la Pena</button>
+<button class="tab-button" onclick="openTab('multa')">Pena de Multa</button>
+<button class="tab-button" onclick="openTab('privativa')">S. Escalonado de la Pena</button>
+<button class="tab-button" onclick="openTab('tercios')">Tercios de la Pena</button>
+<button class="tab-button" onclick="openTab('servicios')">Jornadas de Servicios</button>
+<button class="tab-button" onclick="openTab('escalonado')">Multa en Sistema Escalonado y Tercios</button>
+</div>
+<div class="tab-content active" id="sexto">
+<div class="formula-explanation">
+<p>Cálculo del sexto de la pena:</p>
+<div class="formula">
+          Ingrese el tiempo total de la pena para calcular un sexto
+        </div>
+</div>
+<div class="input-row">
+<div class="input-group">
+<label>Años:</label>
+<input id="años" min="0" oninput="calcularSextoCompleto()" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+<div class="input-group">
+<label>Meses:</label>
+<input id="meses" max="12" min="0" oninput="calcularSextoCompleto()" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+<div class="input-group">
+<label>Días:</label>
+<input id="dias" max="31" min="0" oninput="calcularSextoCompleto()" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+</div>
+<div class="result-box" id="sextoResultCompleto" style="display: none;">
+<div class="result-item">
+<strong>Tiempo original:</strong>
+<span id="tiempoOriginal"></span>
+</div>
+<div class="result-item">
+<strong>Un sexto del tiempo:</strong>
+<span id="unSexto"></span>
+</div>
+<div class="result-item">
+<strong>Tiempo restante:</strong>
+<span id="tiempoRestante"></span>
+</div>
+</div>
+</div>
+<div class="tab-content" id="septimo">
+<div class="formula-explanation">
+<p>Cálculo del séptimo de la pena:</p>
+<div class="formula">
+          Ingrese el tiempo total de la pena para calcular un séptimo
+        </div>
+</div>
+<div class="input-row">
+<div class="input-group">
+<label>Años:</label>
+<input id="añosSeptimo" min="0" oninput="calcularSeptimoCompleto()" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+<div class="input-group">
+<label>Meses:</label>
+<input id="mesesSeptimo" max="12" min="0" oninput="calcularSeptimoCompleto()" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+<div class="input-group">
+<label>Días:</label>
+<input id="diasSeptimo" max="31" min="0" oninput="calcularSeptimoCompleto()" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+</div>
+<div class="result-box" id="septimoResultCompleto" style="display: none;">
+<div class="result-item">
+<strong>Tiempo original:</strong>
+<span id="tiempoOriginalSeptimo"></span>
+</div>
+<div class="result-item">
+<strong>Un séptimo del tiempo:</strong>
+<span id="unSeptimo"></span>
+</div>
+<div class="result-item">
+<strong>Tiempo restante:</strong>
+<span id="tiempoRestanteSeptimo"></span>
+</div>
+</div>
+</div>
+<div class="tab-content" id="multa">
+<div class="formula-explanation">
+<p>Cálculo de la pena de multa:</p>
+<div class="formula">
+          Ingrese los datos para calcular la multa y la reducción por conclusión anticipada
+        </div>
+</div>
+<div class="input-row">
+<div class="input-group">
+<label>Remuneración del imputado (S/.):</label>
+<input id="remuneracion" min="0" oninput="calcularMulta()" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" step="0.01" type="number"/>
+</div>
+<div class="input-group">
+<label>Porcentaje a aplicar (25-50%):</label>
+<input id="porcentaje" max="50" min="25" oninput="calcularMulta()" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number"/>
+</div>
+<div class="input-group">
+<label>Número de días multa:</label>
+<input id="diasMulta" min="0" oninput="calcularMulta()" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number"/>
+</div>
+</div>
+<div class="result-box" id="multaResultado" style="display: none;">
+<div class="result-item">
+<strong>Remuneración diaria (÷30):</strong>
+<span id="remuneracionDiaria"></span>
+</div>
+<div class="result-item">
+<strong>Porcentaje aplicado:</strong>
+<span id="porcentajeAplicado"></span>
+</div>
+<div class="result-item">
+<strong>Multa final:</strong>
+<span id="multaFinal"></span>
+</div>
+</div>
+<div class="formula-explanation" style="margin-top: 2rem;">
+<p>Cálculo de reducción por conclusión anticipada:</p>
+</div>
+<div class="input-row">
+<div class="input-group">
+<label>Número para reducción:</label>
+<input id="numeroReduccion" min="0" oninput="calcularReduccion()" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number"/>
+</div>
+</div>
+<div class="result-box" id="reduccionResultado" style="display: none;">
+<div class="result-item">
+<strong>Número original:</strong>
+<span id="numeroOriginal"></span>
+</div>
+<div class="result-item">
+<strong>Séptimo calculado:</strong>
+<span id="septimoCalculado"></span>
+</div>
+<div class="result-item">
+<strong>Reducción final:</strong>
+<span id="reduccionFinal"></span>
+</div>
+</div>
+</div>
+<div class="tab-content" id="privativa">
+<div class="formula-explanation">
+<p>Cálculo de la pena privativa:</p>
+<div class="formula">
+          Ingrese los datos para calcular la pena privativa con reducciones y agravantes
+        </div>
+</div>
+<div class="input-row">
+<div class="input-group">
+<label>Extremo mínimo (años):</label>
+<input id="minYears" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+<div class="input-group">
+<label>Extremo mínimo (meses):</label>
+<input id="minMonths" max="11" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+<div class="input-group">
+<label>Extremo mínimo (días):</label>
+<input id="minDays" max="30" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+</div>
+<div class="input-row">
+<div class="input-group">
+<label>Extremo máximo (años):</label>
+<input id="maxYears" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+<div class="input-group">
+<label>Extremo máximo (meses):</label>
+<input id="maxMonths" max="11" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+<div class="input-group">
+<label>Extremo máximo (días):</label>
+<input id="maxDays" max="30" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+</div>
+<div class="input-row">
+<div class="input-group">
+<label>Reducción por tentativa, responsabilidad restringida por edad u otra:</label>
+<select id="reductionType">
+<option value="none">Ninguna</option>
+<option value="third">Tercera parte</option>
+<option value="half">Mitad</option>
+</select>
+</div>
+<div class="input-group">
+<label>Número de agravantes en sistema escalonado:</label>
+<input id="aggravatingFactors" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+</div>
+<div class="result-box" id="privativaResult" style="display: none;">
+<div class="result-item">
+<strong>Extremo mínimo de la pena abstracta reducido:</strong>
+<span id="reducedMinPenalty"></span>
+</div>
+<div class="result-item">
+<strong>Extremo máximo de la pena abstracta reducido:</strong>
+<span id="reducedMaxPenalty"></span>
+</div>
+<div class="result-item">
+<strong>Escalonamiento por agravante(s):</strong>
+<div id="escalationLevels"></div>
+</div>
+</div>
+</div>
+<div class="tab-content" id="tercios">
+<div class="formula-explanation">
+<p>Cálculo del tercio de la pena:</p>
+<div class="formula">
+          Ingrese los extremos de la pena abstracta para calcular los tercios
+        </div>
+</div>
+<div class="input-row">
+<div class="input-group">
+<label>Extremo mínimo (años):</label>
+<input id="terciosMinYears" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+<div class="input-group">
+<label>Extremo mínimo (meses):</label>
+<input id="terciosMinMonths" max="11" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+<div class="input-group">
+<label>Extremo mínimo (días):</label>
+<input id="terciosMinDays" max="30" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+</div>
+<div class="input-row">
+<div class="input-group">
+<label>Extremo máximo (años):</label>
+<input id="terciosMaxYears" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+<div class="input-group">
+<label>Extremo máximo (meses):</label>
+<input id="terciosMaxMonths" max="11" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+<div class="input-group">
+<label>Extremo máximo (días):</label>
+<input id="terciosMaxDays" max="30" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+</div>
+<div class="result-box" id="terciosResult" style="display: none;">
+<div class="result-item">
+<strong>Espacio punitivo:</strong>
+<span id="espacioPunitivo"></span>
+</div>
+<div class="result-item">
+<div id="terciosDetails"></div>
+</div>
+</div>
+</div>
+<div class="tab-content" id="servicios">
+<div class="formula-explanation">
+<p>Cálculo de jornadas de servicios:</p>
+<div class="formula">
+          Ingrese el tiempo de pena privativa para calcular las jornadas de servicios
+        </div>
+</div>
+<div class="input-row">
+<div class="input-group">
+<label>Años:</label>
+<input id="serviciosAños" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+<div class="input-group">
+<label>Meses:</label>
+<input id="serviciosMeses" max="11" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+<div class="input-group">
+<label>Días:</label>
+<input id="serviciosDias" max="30" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="0"/>
+</div>
+</div>
+<div class="result-box" id="serviciosResult" style="display: none;">
+<div class="result-item">
+<strong>Total de días de pena privativa:</strong>
+<span id="totalDiasPrivativa"></span>
+</div>
+<div class="result-item">
+<strong>Jornadas de prestación de servicios:</strong>
+<span id="jornadasServicios"></span>
+</div>
+</div>
+</div>
+<div class="tab-content" id="escalonado">
+<div class="formula-explanation">
+<p>Cálculo de Multa en Sistema Escalonado:</p>
+<div class="formula">
+          Ingrese los montos y seleccione el tipo de cálculo y reducción para calcular los rangos escalonados
+        </div>
+</div>
+<div class="input-row">
+<div class="input-group">
+<label>Monto mínimo de multa:</label>
+<input id="montoMinimo" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number"/>
+</div>
+<div class="input-group">
+<label>Monto máximo de multa:</label>
+<input id="montoMaximo" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number"/>
+</div>
+</div>
+<div class="input-row">
+<div class="input-group">
+<label>Reducción:</label>
+<select id="reduccionMulta">
+<option value="original">Mantener valores originales</option>
+<option value="third">Reducir un tercio</option>
+<option value="half">Reducir a la mitad</option>
+</select>
+</div>
+<div class="input-group">
+<label>Número de divisiones:</label>
+<input id="numDivisiones" min="1" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number" value="1"/>
+</div>
+</div>
+<button class="calculate" onclick="calcularEscalonado()">Calcular Sistema Escalonado</button>
+<div class="formula-explanation" style="margin-top: 2rem;">
+<p>Cálculo de Multa por Tercios:</p>
+</div>
+<div class="input-row">
+<div class="input-group">
+<label>Monto mínimo:</label>
+<input id="montoMinimoTercios" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number"/>
+</div>
+<div class="input-group">
+<label>Monto máximo:</label>
+<input id="montoMaximoTercios" min="0" onkeypress="return event.charCode &gt;= 48 &amp;&amp; event.charCode &lt;= 57" pattern="[0-9]*" type="number"/>
+</div>
+</div>
+<button class="calculate" onclick="calcularTerciosMulta()">Calcular por Tercios</button>
+<div class="result-box" id="escalonadoResult" style="display:none;">
+<div class="result-item">
+<strong>Sistema Escalonado:</strong>
+<div id="escalonadoNiveles"></div>
+</div>
+</div>
+<div class="result-box" id="terciosMultaResult" style="display:none;">
+<div class="result-item">
+<strong>Cálculo por Tercios:</strong>
+<div id="terciosMultaDetalle"></div>
+</div>
+</div>
+</div>
+</div>
+<script>function openTab(tabName) {
+  const contents = document.getElementsByClassName('tab-content');
+  const buttons = document.getElementsByClassName('tab-button');
+  Array.from(contents).forEach(content => {
+    content.classList.remove('active');
+  });
+  Array.from(buttons).forEach(button => {
+    button.classList.remove('active');
+  });
+  document.getElementById(tabName).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+function calcularSextoCompleto() {
+  const años = parseInt(document.getElementById('años').value) || 0;
+  const meses = parseInt(document.getElementById('meses').value) || 0;
+  const dias = parseInt(document.getElementById('dias').value) || 0;
+  const totalDias = años * 365.25 + meses * 30.436875 + dias;
+  const sextoDias = totalDias / 6;
+  const restanteDias = totalDias - sextoDias;
+  function formatearTiempo(dias) {
+    const años = Math.floor(dias / 365.25);
+    const diasRestantesAños = dias % 365.25;
+    const mesesRestantes = Math.floor(diasRestantesAños / 30.436875);
+    const diasRestantes = Math.round(diasRestantesAños % 30.436875);
+    let resultado = '';
+    if (años > 0) resultado += `${años} año${años !== 1 ? 's' : ''} `;
+    if (mesesRestantes > 0) resultado += `${mesesRestantes} mes${mesesRestantes !== 1 ? 'es' : ''} `;
+    if (diasRestantes > 0) resultado += `${diasRestantes} día${diasRestantes !== 1 ? 's' : ''}`;
+    return resultado.trim() || '0 días';
+  }
+  const resultadoDiv = document.getElementById('sextoResultCompleto');
+  resultadoDiv.style.display = 'block';
+  document.getElementById('tiempoOriginal').textContent = formatearTiempo(totalDias);
+  document.getElementById('unSexto').textContent = formatearTiempo(sextoDias);
+  document.getElementById('tiempoRestante').textContent = formatearTiempo(restanteDias);
+}
+function calcularMulta() {
+  const remuneracion = parseFloat(document.getElementById('remuneracion').value) || 0;
+  const porcentaje = parseFloat(document.getElementById('porcentaje').value) || 0;
+  const diasMulta = parseInt(document.getElementById('diasMulta').value) || 0;
+  const remuneracionDiaria = remuneracion / 30;
+  const porcentajeDecimal = porcentaje / 100;
+  const multaPorDia = remuneracionDiaria * porcentajeDecimal;
+  const multaFinal = multaPorDia * diasMulta;
+  const resultadoDiv = document.getElementById('multaResultado');
+  resultadoDiv.style.display = 'block';
+  document.getElementById('remuneracionDiaria').textContent = `S/. ${remuneracionDiaria.toFixed(2)}`;
+  document.getElementById('porcentajeAplicado').textContent = `${porcentaje}% (S/. ${multaPorDia.toFixed(2)} por día)`;
+  document.getElementById('multaFinal').textContent = `S/. ${multaFinal.toFixed(2)}`;
+}
+function calcularPrivativa() {
+  const minYears = parseInt(document.getElementById('minYears').value) || 0;
+  const minMonths = parseInt(document.getElementById('minMonths').value) || 0;
+  const minDays = parseInt(document.getElementById('minDays').value) || 0;
+  const maxYears = parseInt(document.getElementById('maxYears').value) || 0;
+  const maxMonths = parseInt(document.getElementById('maxMonths').value) || 0;
+  const maxDays = parseInt(document.getElementById('maxDays').value) || 0;
+  const reductionType = document.getElementById('reductionType').value;
+  const aggravatingFactors = parseInt(document.getElementById('aggravatingFactors').value) || 0;
+  const minDaysTotal = minYears * 365.25 + minMonths * 30.436875 + minDays;
+  const maxDaysTotal = maxYears * 365.25 + maxMonths * 30.436875 + maxDays;
+  let reductionFactor = 1;
+  if (reductionType === 'third') {
+    reductionFactor = 2 / 3;
+  } else if (reductionType === 'half') {
+    reductionFactor = 1 / 2;
+  }
+  const reducedMinDays = minDaysTotal * reductionFactor;
+  const reducedMaxDays = maxDaysTotal * reductionFactor;
+  function formatDays(days) {
+    const years = Math.floor(days / 365.25);
+    const remainingDays = days % 365.25;
+    const months = Math.floor(remainingDays / 30.436875);
+    const finalDays = Math.round(remainingDays % 30.436875);
+    let result = [];
+    if (years > 0) result.push(`${years} año${years !== 1 ? 's' : ''}`);
+    if (months > 0) result.push(`${months} mes${months !== 1 ? 'es' : ''}`);
+    if (finalDays > 0) result.push(`${finalDays} día${finalDays !== 1 ? 's' : ''}`);
+    return result.join(', ') || '0 días';
+  }
+  const escalationLevels = [];
+  if (aggravatingFactors > 0) {
+    const increment = (reducedMaxDays - reducedMinDays) / aggravatingFactors;
+    for (let i = 1; i <= aggravatingFactors; i++) {
+      const levelDays = reducedMinDays + increment * i;
+      escalationLevels.push({
+        level: i,
+        days: levelDays
+      });
+    }
+  }
+  document.getElementById('privativaResult').style.display = 'block';
+  document.getElementById('reducedMinPenalty').textContent = formatDays(reducedMinDays);
+  document.getElementById('reducedMaxPenalty').textContent = formatDays(reducedMaxDays);
+  const escalationDiv = document.getElementById('escalationLevels');
+  if (aggravatingFactors > 0) {
+    escalationDiv.innerHTML = `<strong>Escalonamiento por ${aggravatingFactors} agravante(s) (sumado al extremo mínimo reducido):</strong><br>` + escalationLevels.map(level => `Nivel ${level.level}: ${formatDays(level.days)}`).join('<br>');
+  } else {
+    escalationDiv.innerHTML = 'No hay agravantes para escalonar';
+  }
+}
+function calcularTercios() {
+  const minYears = parseInt(document.getElementById('terciosMinYears').value) || 0;
+  const minMonths = parseInt(document.getElementById('terciosMinMonths').value) || 0;
+  const minDays = parseInt(document.getElementById('terciosMinDays').value) || 0;
+  const maxYears = parseInt(document.getElementById('terciosMaxYears').value) || 0;
+  const maxMonths = parseInt(document.getElementById('terciosMaxMonths').value) || 0;
+  const maxDays = parseInt(document.getElementById('terciosMaxDays').value) || 0;
+  const minDaysTotal = minYears * 365.25 + minMonths * 30.436875 + minDays;
+  const maxDaysTotal = maxYears * 365.25 + maxMonths * 30.436875 + maxDays;
+  const espacioPunitivoDays = maxDaysTotal - minDaysTotal;
+  const tercio = espacioPunitivoDays / 3;
+  function formatDays(days) {
+    const years = Math.floor(days / 365.25);
+    const remainingDays = days % 365.25;
+    const months = Math.floor(remainingDays / 30.436875);
+    const finalDays = Math.round(remainingDays % 30.436875);
+    let result = [];
+    if (years > 0) result.push(`${years} año${years !== 1 ? 's' : ''}`);
+    if (months > 0) result.push(`${months} mes${months !== 1 ? 'es' : ''}`);
+    if (finalDays > 0) result.push(`${finalDays} día${finalDays !== 1 ? 's' : ''}`);
+    return result.join(', ') || '0 días';
+  }
+  document.getElementById('terciosResult').style.display = 'block';
+  document.getElementById('espacioPunitivo').textContent = formatDays(espacioPunitivoDays);
+  const terciosHTML = `
+    <p><strong>Extremo mínimo:</strong> ${formatDays(minDaysTotal)}</p>
+    <p><strong>Primer tercio:</strong> ${formatDays(minDaysTotal + tercio)}</p>
+    <p><strong>Segundo tercio:</strong> ${formatDays(minDaysTotal + 2 * tercio)}</p>
+    <p><strong>Extremo máximo:</strong> ${formatDays(maxDaysTotal)}</p>
+  `;
+  document.getElementById('terciosDetails').innerHTML = terciosHTML;
+}
+function calcularServicios() {
+  const años = parseInt(document.getElementById('serviciosAños').value) || 0;
+  const meses = parseInt(document.getElementById('serviciosMeses').value) || 0;
+  const dias = parseInt(document.getElementById('serviciosDias').value) || 0;
+  const totalDias = Math.round(años * 365.25 + meses * 30.436875 + dias);
+  const jornadasServicios = Math.round(totalDias / 7);
+  const resultadoDiv = document.getElementById('serviciosResult');
+  resultadoDiv.style.display = 'block';
+  document.getElementById('totalDiasPrivativa').textContent = totalDias;
+  document.getElementById('jornadasServicios').textContent = jornadasServicios;
+}
+function calcularSeptimoCompleto() {
+  const años = parseInt(document.getElementById('añosSeptimo').value) || 0;
+  const meses = parseInt(document.getElementById('mesesSeptimo').value) || 0;
+  const dias = parseInt(document.getElementById('diasSeptimo').value) || 0;
+  const totalDias = años * 365.25 + meses * 30.436875 + dias;
+  const septimoDias = totalDias / 7;
+  const restanteDias = totalDias - septimoDias;
+  function formatearTiempo(dias) {
+    const años = Math.floor(dias / 365.25);
+    const diasRestantesAños = dias % 365.25;
+    const mesesRestantes = Math.floor(diasRestantesAños / 30.436875);
+    const diasRestantes = Math.round(diasRestantesAños % 30.436875);
+    let resultado = '';
+    if (años > 0) resultado += `${años} año${años !== 1 ? 's' : ''} `;
+    if (mesesRestantes > 0) resultado += `${mesesRestantes} mes${mesesRestantes !== 1 ? 'es' : ''} `;
+    if (diasRestantes > 0) resultado += `${diasRestantes} día${diasRestantes !== 1 ? 's' : ''}`;
+    return resultado.trim() || '0 días';
+  }
+  const resultadoDiv = document.getElementById('septimoResultCompleto');
+  resultadoDiv.style.display = 'block';
+  document.getElementById('tiempoOriginalSeptimo').textContent = formatearTiempo(totalDias);
+  document.getElementById('unSeptimo').textContent = formatearTiempo(septimoDias);
+  document.getElementById('tiempoRestanteSeptimo').textContent = formatearTiempo(restanteDias);
+}
+function calcularReduccion() {
+  const numero = parseInt(document.getElementById('numeroReduccion').value) || 0;
+  const septimo = numero / 7;
+  let reduccionFinal = numero;
+  if (septimo % 1 >= 0.5) {
+    reduccionFinal = Math.floor(numero);
+  }
+  const resultadoDiv = document.getElementById('reduccionResultado');
+  resultadoDiv.style.display = 'block';
+  document.getElementById('numeroOriginal').textContent = numero;
+  document.getElementById('septimoCalculado').textContent = septimo.toFixed(2);
+  document.getElementById('reduccionFinal').textContent = reduccionFinal;
+}
+function calcularEscalonado() {
+  const montoMinimo = parseInt(document.getElementById('montoMinimo').value) || 0;
+  const montoMaximo = parseInt(document.getElementById('montoMaximo').value) || 0;
+  const numDivisiones = parseInt(document.getElementById('numDivisiones').value) || 1;
+  const reduccionTipo = document.getElementById('reduccionMulta').value;
+  let minReducido = montoMinimo;
+  let maxReducido = montoMaximo;
+  if (reduccionTipo === 'third') {
+    minReducido = Math.floor(montoMinimo * (2 / 3));
+    maxReducido = Math.floor(montoMaximo * (2 / 3));
+  } else if (reduccionTipo === 'half') {
+    minReducido = Math.floor(montoMinimo * (1 / 2));
+    maxReducido = Math.floor(montoMaximo * (1 / 2));
+  }
+  const incremento = Math.floor((maxReducido - minReducido) / numDivisiones);
+  let nivelesHTML = `<p><strong>Montos reducidos:</strong></p>`;
+  nivelesHTML += `<p>Mínimo: ${minReducido}</p>`;
+  nivelesHTML += `<p>Máximo: ${maxReducido}</p>`;
+  nivelesHTML += `<p><strong>Rangos:</strong></p>`;
+  let rangoInicio = minReducido;
+  for (let i = 1; i <= numDivisiones; i++) {
+    const rangoFin = minReducido + incremento * i;
+    nivelesHTML += `<p>${Math.floor(rangoInicio)} - ${Math.floor(rangoFin)}</p>`;
+    rangoInicio = rangoFin;
+  }
+  document.getElementById('escalonadoResult').style.display = 'block';
+  document.getElementById('escalonadoNiveles').innerHTML = nivelesHTML;
+}
+function calcularTerciosMulta() {
+  const montoMinimo = parseInt(document.getElementById('montoMinimoTercios').value) || 0;
+  const montoMaximo = parseInt(document.getElementById('montoMaximoTercios').value) || 0;
+  const diferencia = montoMaximo - montoMinimo;
+  const tercio = Math.floor(diferencia / 3);
+  let terciosHTML = `<p>Extremo mínimo: ${montoMinimo}</p>`;
+  terciosHTML += `<p>Primer tercio: ${Math.floor(montoMinimo + tercio)}</p>`;
+  terciosHTML += `<p>Segundo tercio: ${Math.floor(montoMinimo + 2 * tercio)}</p>`;
+  terciosHTML += `<p>Extremo máximo: ${montoMaximo}</p>`;
+  document.getElementById('terciosMultaResult').style.display = 'block';
+  document.getElementById('terciosMultaDetalle').innerHTML = terciosHTML;
+}
+document.querySelectorAll('#privativa input, #privativa select').forEach(input => {
+  input.addEventListener('input', calcularPrivativa);
+});
+document.querySelectorAll('#tercios input').forEach(input => {
+  input.addEventListener('input', calcularTercios);
+});
+document.querySelectorAll('#servicios input').forEach(input => {
+  input.addEventListener('input', calcularServicios);
+});</script>
+<footer style="margin-top: 2rem; text-align: center; color: #ecf0f1; font-size: 0.9rem;">
+<p>Desarrollado por: Juan Centurión Santisteban</p>
+<p>PenaFácil 2025</p>
+</footer>
+</body></html>
